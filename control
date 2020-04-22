@@ -1,0 +1,9 @@
+Package: com.iter99.gester13
+Name: Gester13
+Depends: mobilesubstrate
+Version: 3.0.1
+Architecture: iphoneos-arm
+Description: iPhone 8 and older feature.
+Maintainer: iTer99
+Author: iTer99
+Section: Tweaks
