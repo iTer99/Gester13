@@ -1,3 +1,5 @@
+#define CGRectSetY(rect, y) CGRectMake(rect.origin.x, y, rect.size.width, rect.size.height)
+
 @interface CSTeachableMomentsContainerView : UIView
 @property(retain, nonatomic) UIView *controlCenterGrabberView;
 @property(retain, nonatomic) UIView *controlCenterGrabberEffectContainerView;
@@ -24,10 +26,17 @@
 } 
 %end
 
-// No STT bar in CC
-%hook CCUIOverlayStatusBarPresentationProvider
-- (void)_addHeaderContentTransformAnimationToBatch:(id)arg1 transitionState:(id)arg2 {
-   return;
+// iPad Statusbar
+%hook _UIStatusBarVisualProvider_iOS
++(Class)class {
+   return NSClassFromString(@"_UIStatusBarVisualProvider_Pad_ForcedCellular");
+}
+%end
+
+// Fix Statusbar iPad in CC
+%hook CCUIHeaderPocketView
+- (void)setFrame:(CGRect)frame {
+    %orig(CGRectSetY(frame, -24));
 }
 %end
 
@@ -74,13 +83,6 @@ if (NSClassFromString(@"BarmojiCollectionView"))
 -(unsigned long long)iconRowsForCurrentOrientation {
    if (%orig<4) return %orig;
    return %orig + YES;
-}
-%end
-
-// iPad Statusbar
-%hook _UIStatusBarVisualProvider_iOS
-+(Class)class {
-   return NSClassFromString(@"_UIStatusBarVisualProvider_Pad_ForcedCellular");
 }
 %end
 
