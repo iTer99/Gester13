@@ -33,7 +33,7 @@
 }
 %end
 
-// Fix Statusbar iPad in CC
+// Fix Statusbar glitch in CC
 %hook CCUIHeaderPocketView
 - (void)setFrame:(CGRect)frame {
     %orig(CGRectSetY(frame, -24));
