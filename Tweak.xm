@@ -19,6 +19,12 @@
 }
 %end
 
+%hook UITraitCollection
+- (CGFloat)displayCornerRadius {
+	return YES;
+}
+%end
+
 // No homebar inapp
 %hook SBFHomeGrabberSettings
 -(bool)isEnabled {
@@ -152,3 +158,12 @@ if (applicationDidFinishLaunching == 1) {
    return %orig(arg1,arg2,1);
 }
 %end
+
+// PiP
+extern "C" Boolean MGGetBoolAnswer(CFStringRef);
+%hookf(Boolean, MGGetBoolAnswer, CFStringRef key) {
+#define keyy(key_) CFEqual(key, CFSTR(key_))
+    if (keyy("nVh/gwNpy7Jv1NOk00CMrw"))
+        return YES;
+    return %orig;
+}
