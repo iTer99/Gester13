@@ -12,35 +12,46 @@
 @property (nonatomic, retain) UIControl *cameraButton;
 @end
 
-// Gesture iPhone X
+// Gesture
 %hook BSPlatform
 -(NSInteger)homeButtonType {
    return 2;
 }
 %end
 
-// No homebar in application
+// No homebar inapp
 %hook SBFHomeGrabberSettings
 -(bool)isEnabled {
    return NO;
 } 
 %end
 
-// iPad Statusbar
+// iPad STB
 %hook _UIStatusBarVisualProvider_iOS
 +(Class)class {
    return NSClassFromString(@"_UIStatusBarVisualProvider_Pad_ForcedCellular");
 }
 %end
 
-// Fix Statusbar glitch in CC
 %hook CCUIHeaderPocketView
 - (void)setFrame:(CGRect)frame {
     %orig(CGRectSetY(frame, -24));
 }
 %end
 
-// CC Grabber
+// Flashlight & Camera & CC Grabber in LS
+%hook CSQuickActionsView
+-(bool)_prototypingAllowsButtons {
+return YES;
+}
+-(void)_layoutQuickActionButtons {
+   CGRect screenBounds = [UIScreen mainScreen].bounds;
+   int inset = [self _buttonOutsets].top;
+   [self flashlightButton].frame = CGRectMake(46, screenBounds.size.height - 90 - inset, 50, 50);
+   [self cameraButton].frame = CGRectMake(screenBounds.size.width - 96, screenBounds.size.height - 90 - inset, 50, 50);
+}
+%end
+
 %hook CSTeachableMomentsContainerView
 -(void)_layoutControlCenterGrabberAndGlyph  {
    %orig;
@@ -63,6 +74,7 @@ if (orig.left == 75)  {
    return orig;
 }
 %end
+
 %hook UIKeyboardDockView
 -(CGRect)bounds {
 if (NSClassFromString(@"BarmojiCollectionView")) 
@@ -73,60 +85,19 @@ if (NSClassFromString(@"BarmojiCollectionView"))
 }
 %end
 
-// Dock iPad
-%hook SBFloatingDockController
-+(bool)isFloatingDockSupported {
-   return YES;
-}
-%end
-%hook SBIconListView
--(unsigned long long)iconRowsForCurrentOrientation {
-   if (%orig<4) return %orig;
-   return %orig + YES;
-}
-%end
-
-// FloatyDock
-%hook SBPlatformController
--(long long)medusaCapabilities {
-   return 1;
-}
-%end
-%hook SBMainWorkspace
--(bool)isMedusaEnabled {
-   return YES;
-}
-%end
-%hook SBApplication
--(bool)isMedusaCapable {
-   return YES;
-}
-%end
-
-// Flashlight and Camera
-%hook CSQuickActionsView
--(bool)_prototypingAllowsButtons {
-return YES;
-}
--(void)_layoutQuickActionButtons {
-   CGRect screenBounds = [UIScreen mainScreen].bounds;
-   int inset = [self _buttonOutsets].top;
-   [self flashlightButton].frame = CGRectMake(46, screenBounds.size.height - 90 - inset, 50, 50);
-   [self cameraButton].frame = CGRectMake(screenBounds.size.width - 96, screenBounds.size.height - 90 - inset, 50, 50);
-}
-%end
-
-// Hardware button
+// Hardware button original
 %hook SBLockHardwareButtonActions
 -(id)initWithHomeButtonType:(long long)arg1 proximitySensorManager:(id)arg2 {
    return %orig(1, arg2);
 }
 %end
+
 %hook SBHomeHardwareButtonActions
 -(id)initWitHomeButtonType:(long long)arg1 {
    return %orig(1);
 }
 %end
+
 int applicationDidFinishLaunching;
 %hook SpringBoard
 -(void)applicationDidFinishLaunching:(id)application {
@@ -134,6 +105,7 @@ int applicationDidFinishLaunching;
    %orig;
 }
 %end
+
 %hook SBPressGestureRecognizer
 -(void)setAllowedPressTypes:(NSArray *)arg1 {
    NSArray * lockHome = @[@104, @101];
@@ -146,6 +118,7 @@ if ([arg1 isEqual:lockVol] && applicationDidFinishLaunching == 2) {
 %orig;
 }
 %end
+
 %hook SBClickGestureRecognizer
 -(void)addShortcutWithPressTypes:(id)arg1 {
 if (applicationDidFinishLaunching == 1) {
@@ -155,6 +128,7 @@ if (applicationDidFinishLaunching == 1) {
    %orig;
 }
 %end
+
 %hook SBHomeHardwareButton
 -(id)initWithScreenshotGestureRecognizer:(id)arg1 homeButtonType:(long long)arg2 buttonActions:(id)arg3 gestureRecognizerConfiguration:(id)arg4 {
    return %orig(arg1,1,arg3,arg4);
@@ -163,6 +137,7 @@ if (applicationDidFinishLaunching == 1) {
    return %orig(arg1,1);
 }
 %end
+
 %hook SBLockHardwareButton
 -(id)initWithScreenshotGestureRecognizer:(id)arg1 shutdownGestureRecognizer:(id)arg2 proximitySensorManager:(id)arg3 homeHardwareButton:(id)arg4 volumeHardwareButton:(id)arg5 buttonActions:(id)arg6 homeButtonType:(long long)arg7 createGestures:(_Bool)arg8 {
    return %orig(arg1,arg2,arg3,arg4,arg5,arg6,1,arg8);
@@ -171,6 +146,7 @@ if (applicationDidFinishLaunching == 1) {
    return %orig(arg1,arg2,arg3,arg4,arg5,1);
 }
 %end
+
 %hook SBVolumeHardwareButton
 -(id)initWithScreenshotGestureRecognizer:(id)arg1 shutdownGestureRecognizer:(id)arg2 homeButtonType:(long long)arg3 {
    return %orig(arg1,arg2,1);
